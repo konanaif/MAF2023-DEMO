@@ -1,1 +1,2 @@
-# MAF2023-DEMO
+# MAF-DEMO
+ Use MAF with web demo
