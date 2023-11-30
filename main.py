@@ -474,8 +474,8 @@ class Mitigation:
             biased = dataset_train.features[:, protected_idx]
 
             # RawDataSet
-            train_data = RawDataSet(x=dataset_train.features, y=dataset_train.labels.ravel(), z=biased)
-            test_data = RawDataSet(x=dataset_test.features, y=dataset_test.labels.ravel(), z=biased)
+            train_data = RawDataSet(x=np.delete(dataset_train.features, protected_idx, axis = 1), y=dataset_train.labels.ravel(), z=biased)
+            test_data = RawDataSet(x=np.delete(dataset_test.features, protected_idx, axis = 1), y=dataset_test.labels.ravel(), z=biased)
 
             # Train
             n_epoch = 20
