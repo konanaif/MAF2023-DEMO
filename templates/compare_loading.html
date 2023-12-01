@@ -21,6 +21,29 @@
 			margin: 0 0 0.5em 0;
 		}
 		</style>
+		<script>
+        async function checkMitigationStatus() {
+			const response = await fetch('/check_mitigation_status');
+			const data = await response.json();
+
+			if (data.metricsReady) {
+				if (data.error_message) {
+					// 에러가 있으면 에러 메시지 표시
+					alert(`Error during mitigation: ${data.error_message}`);
+				} else {
+					const dataName = encodeURIComponent(data.data_name);
+					const methodId = data.method_id;
+					window.location.href = `/mitigation/${dataName}/${methodId}`;
+				}
+			} else {
+				setTimeout(checkMitigationStatus, 2000);
+			}
+		}
+
+		document.addEventListener('DOMContentLoaded', () => {
+			checkMitigationStatus();
+		});
+		</script>
 	</head>
 	<body class="is-preload">
 

@@ -55,19 +55,31 @@
 										<ul class="alt">
 											<li>
 												<div class="col-4 col-12-small">
-													<input type="radio" id="dir" name="algorithm" value="1">
+													{% if data_name == 'pubfig' %}
+														<input type="radio" id="dir" name="algorithm" value="1" disabled>
+													{% else %}
+														<input type="radio" id="dir" name="algorithm" value="1">
+													{% endif %}
 													    <label class="tooltip" for="dir">Disparate impact remover <span class="tooltiptext tooltip-right">Disparate Impact is a metric to evaluate fairness. It compares the proportion of individuals that receive a positive output for two groups: an unprivileged group and a privileged group.</span></label>
 												</div>
 											</li>
 											<li>
 												<div class="col-4 col-12-small">
-													<input type="radio" id="lfr" name="algorithm" value="2">
+													{% if data_name == 'pubfig' %}
+														<input type="radio" id="lfr" name="algorithm" value="2" disabled>
+													{% else %}
+														<input type="radio" id="lfr" name="algorithm" value="2">
+													{% endif %}
 													<label class="tooltip" for="lfr">Learning fair representation <span class="tooltiptext tooltip-right">Learning fair representations is a pre-processing technique that finds a latent representation which encodes the data well but obfuscates information about protected attributes.</span></label>
 												</div>
 											</li>
 											<li>
 												<div class="col-4 col-12-small">
-													<input type="radio" id="rw" name="algorithm" value="3">
+													{% if data_name == 'pubfig' %}
+														<input type="radio" id="rw" name="algorithm" value="3" disabled>
+													{% else %}
+														<input type="radio" id="rw" name="algorithm" value="3">
+													{% endif %}
 													<label class="tooltip" for="rw">Reweighting <span class="tooltiptext tooltip-right">Reweighing is a preprocessing technique that Weights the examples in each (group, label) combination differently to ensure fairness before classification.</span></label>
 												</div>
 											</li>
@@ -76,19 +88,31 @@
 										<ul class="alt">
 											<li>
 												<div class="col-4 col-12-small">
-													<input type="radio" id="gfc" name="algorithm" value="5">
+													{% if data_name == 'pubfig' %}
+														<input type="radio" id="gfc" name="algorithm" value="5" disabled>
+													{% else %}
+														<input type="radio" id="gfc" name="algorithm" value="5">
+													{% endif %}
 													<label class="tooltip" for="gfc">Gerry fair classifier <span class="tooltiptext tooltip-right">Gerry fair classifier is an algorithm for learning classifiers that are fair with respect to rich subgroups. Rich subgroups are defined by (linear) functions over the sensitive attributes, and fairness notions are statistical: false positive, false negative, and statistical parity rates. This implementation uses a max of two regressions as a cost-sensitive classification oracle, and supports linear regression, support vector machines, decision trees, and kernel regression.</span></label>
 												</div>
 											</li>
 											<li>
 												<div class="col-4 col-12-small">
-													<input type="radio" id="mfc" name="algorithm" value="6">
+													{% if data_name == 'pubfig' %}
+														<input type="radio" id="mfc" name="algorithm" value="6" disabled>
+													{% else %}
+														<input type="radio" id="mfc" name="algorithm" value="6">
+													{% endif %}
 													<label class="tooltip" for="mfc">Meta fair classifier <span class="tooltiptext tooltip-right">The meta algorithm here takes the fairness metric as part of the input and returns a classifier optimized w.r.t. that fairness metric.</span></label>
 												</div>
 											</li>
 											<li>
 												<div class="col-4 col-12-small">
-													<input type="radio" id="pr" name="algorithm" value="7">
+													{% if data_name == 'pubfig' %}
+														<input type="radio" id="pr" name="algorithm" value="7" disabled>
+													{% else %}
+														<input type="radio" id="pr" name="algorithm" value="7">
+													{% endif %}
 													<label class="tooltip" for="pr">Prejudice remover <span class="tooltiptext tooltip-right">Prejudice remover is an in-processing technique that adds a discrimination-aware regularization term to the learning objective.</span></label>
 												</div>
 											</li>
@@ -97,7 +121,11 @@
 										<ul class="alt">
 											<li>
 												<div class="col-4 col-12-small">
-													<input type="radio" id="fb" name="algorithm" value="8">
+													{% if data_name == 'pubfig' %}
+														<input type="radio" id="fb" name="algorithm" value="8" disabled>
+													{% else %}
+														<input type="radio" id="fb" name="algorithm" value="8">
+													{% endif %}
 													<label class="tooltip" for="fb">Fair batch <span class="tooltiptext tooltip-right">FairBatch is a bilevel optimization approach designed for enhancing fairness in machine learning models by adaptively selecting minibatch sizes without requiring changes to data preprocessing or model training, providing an effective and easily implementable solution.</span></label>
 												</div>
 											</li>
@@ -123,7 +151,11 @@
 											</li>
 											<li>
 												<div class="col-4 col-12-small">
-													<input type="radio" id="kde" name="algorithm" value="11">
+													{% if data_name == 'pubfig' %}
+														<input type="radio" id="kde" name="algorithm" value="11" disabled>
+													{% else %}
+														<input type="radio" id="kde" name="algorithm" value="11">
+													{% endif %}
 													<label class="tooltip" for="kde">Kernel density estimation <span class="tooltiptext tooltip-right">The algorithm proposes a kernel density estimation (KDE) method to ensure fairness, presenting KDE-based fairness metrics (DDP and DEO) as differentiable functions with respect to model parameters. Through this approach, the algorithm addresses the fairness assurance problem of the model as an optimization problem with respect to model parameters, providing a solution through gradient descent.</span></label>
 												</div>
 											</li>
@@ -142,19 +174,31 @@
 										<ul class="alt">
 											<li>
 												<div class="col-4 col-12-small">
-													<input type="radio" id="ceo" name="algorithm" value="13">
+													{% if data_name == 'pubfig' %}
+														<input type="radio" id="ceo" name="algorithm" value="13" disabled>
+													{% else %}
+														<input type="radio" id="ceo" name="algorithm" value="13">
+													{% endif %}
 													<label class="tooltip" for="ceo">Calibrated equalized odds <span class="tooltiptext tooltip-right">Calibrated equalized odds postprocessing is a post-processing technique that optimizes over calibrated classifier score outputs to find probabilities with which to change output labels with an equalized odds objective.</span></label>
 												</div>
 											</li>
 											<li>
 												<div class="col-4 col-12-small">
-													<input type="radio" id="eo" name="algorithm" value="14">
+													{% if data_name == 'pubfig' %}
+														<input type="radio" id="eo" name="algorithm" value="14" disabled>
+													{% else %}
+														<input type="radio" id="eo" name="algorithm" value="14">
+													{% endif %}
 													<label class="tooltip" for="eo">Equalized odds <span class="tooltiptext tooltip-right">Equalized odds postprocessing is a post-processing technique that solves a linear program to find probabilities with which to change output labels to optimize equalized odds.</span></label>
 												</div>
 											</li>
 											<li>
 												<div class="col-4 col-12-small">
-													<input type="radio" id="ro" name="algorithm" value="15">
+													{% if data_name == 'pubfig' %}
+														<input type="radio" id="ro" name="algorithm" value="15" disabled>
+													{% else %}
+														<input type="radio" id="ro" name="algorithm" value="15">
+													{% endif %}
 													<label class="tooltip" for="ro">Reject option <span class="tooltiptext tooltip-right">Reject option classification is a postprocessing technique that gives favorable outcomes to unpriviliged groups and unfavorable outcomes to priviliged groups in a confidence band around the decision boundary with the highest uncertainty.</span></label>
 												</div>
 											</li>
