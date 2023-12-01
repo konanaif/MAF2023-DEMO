@@ -22,8 +22,9 @@ git clone https://github.com/konanaif/MAF-DEMO.git
 
 ## How to use
 ### 0. Dataset
-Sample 폴더를 생성한 후, 해당 폴더에 데이터를 다운로드 합니다. 이 때, MAF 프레임워크와 Sample 폴더, MAF-DEMO의 소스코드 hierarchy는 다음과 같습니다. 
 ![image](https://github.com/konanaif/MAF2023-DEMO/assets/96036352/daf86714-8f60-4626-9d1a-f3c3b474e9f3)
+
+Sample 폴더를 생성한 후, 해당 폴더에 데이터를 다운로드 합니다. 이 때, MAF 프레임워크와 Sample 폴더, MAF-DEMO의 소스코드 hierarchy는 다음과 같습니다. 
 
 #### A.	COMPAS
 다음 링크를 통해 compas-scores-two-years.csv 파일을 다운로드 합니다. 
