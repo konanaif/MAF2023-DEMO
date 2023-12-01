@@ -2,6 +2,11 @@
 MAF-DEMO는 MAF의 기능을 담고있는 웹데모입니다. 
 ![image](https://github.com/eeunz/MAF-DEMO/assets/110804596/675ab84c-20c3-48fa-bed1-4b3e1d41a7ee)
 
+메인 화면의 구성은 다음과 같습니다. 
+- DATA SELECTION: 데이터 선택
+- STATE OF THE ART, DESCRIPTION OF SOTA ALGORITHMS: 컨소시엄에서 제안한 알고리즘에 대한 간략한 소개 
+- ADVENTAGES: 프레임 워크의 특징 소개 
+
 
 ## About
 
