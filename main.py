@@ -825,14 +825,11 @@ async def get_mitigated_result(request: Request, data_name: str, algo_id: int, b
     background_tasks.add_task(metrics_loading)
 
     if miti_result.result is None:
-        # If miti_result.result is None, render compare_loading.html to wait
         return templates.TemplateResponse('compare_loading.html', {'request': request})
     elif 'error' in miti_result.result:
-        # If there's an error, render compare_error.html
         context = {'request': request, 'error_message': miti_result.result['error']}
         return templates.TemplateResponse('compare_error.html', context=context)
     else:
-        # No error, render compare.html
         context = {
             'request': request,
             'data_name': data_name,

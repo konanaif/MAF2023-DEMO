@@ -208,14 +208,14 @@
 											<tbody>
 												<tr>
 													<td class="tooltip" onmouseover="showTooltip('bm', 'Error Rate')">Error rate</td>
-													{% if original.classify.error_rate >= mitigated.classify.error_rate %}
+													{% if original.classify.error_rate <= mitigated.classify.error_rate %}
 														<td><b>{{ original.classify.error_rate }}</b></td>
 														<td>{{ mitigated.classify.error_rate }}</td>
 													{% else %}
 														<td>{{ original.classify.error_rate }}</td>
 														<td><b>{{ mitigated.classify.error_rate }}</b></td>
 													{% endif %}
-													<td></td>
+													<td>0.0</td>
 												</tr>
 												<tr>
 													<td class="tooltip" onmouseover="showTooltip('bm', 'Average odds difference')">Average odds difference</td>
