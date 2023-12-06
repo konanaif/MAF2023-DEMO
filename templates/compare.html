@@ -247,12 +247,27 @@
 												</tr>
 												<tr>
 													<td class="tooltip" onmouseover="showTooltip('bm', 'Disparate impact')">Disparate impact</td>
-													{% if (1 - absoriginal.classify.disparate_impact) <= (1 - absmitigated.classify.disparate_impact) %}
-														<td><b>{{ original.classify.disparate_impact }}</b></td>
-														<td>{{ mitigated.classify.disparate_impact }}</td>
+													{% set originalValue = absoriginal.classify.disparate_impact %}
+													{% set mitigatedValue = absmitigated.classify.disparate_impact %}
+
+													{% if originalValue >= 1 or mitigatedValue >= 1 %}
+														{% set originalDiff = originalValue - 1 %}
+														{% set mitigatedDiff = mitigatedValue - 1 %}
+														{% if originalDiff <= mitigatedDiff %}
+															<td><b>{{ original.classify.disparate_impact }}</b></td>
+															<td>{{ mitigated.classify.disparate_impact }}</td>
+														{% else %}
+															<td>{{ original.classify.disparate_impact }}</td>
+															<td><b>{{ mitigated.classify.disparate_impact }}</b></td>
+														{% endif %}
 													{% else %}
-														<td>{{ original.classify.disparate_impact }}</td>
-														<td><b>{{ mitigated.classify.disparate_impact }}</b></td>
+														{% if (1 - originalValue) <= (1 - mitigatedValue) %}
+															<td><b>{{ original.classify.disparate_impact }}</b></td>
+															<td>{{ mitigated.classify.disparate_impact }}</td>
+														{% else %}
+															<td>{{ original.classify.disparate_impact }}</td>
+															<td><b>{{ mitigated.classify.disparate_impact }}</b></td>
+														{% endif %}
 													{% endif %}
 													<td>1.0</td>
 												</tr>
