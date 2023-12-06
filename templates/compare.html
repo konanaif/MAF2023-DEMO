@@ -122,21 +122,21 @@
 												<tr>
 													<td class="tooltip" onmouseover="showTooltip('pm', 'FPR')">False positive rate</td>
 													{% if original.performance.false_positive_rate >= mitigated.performance.false_positive_rate %}
-														<td><b>{{ original.performance.false_positive_rate }}</b></td>
-														<td>{{ mitigated.performance.false_positive_rate }}</td>
-													{% else %}
 														<td>{{ original.performance.false_positive_rate }}</td>
 														<td><b>{{ mitigated.performance.false_positive_rate }}</b></td>
+													{% else %}
+														<td><b>{{ original.performance.false_positive_rate }}</b></td>
+														<td>{{ mitigated.performance.false_positive_rate }}</td>
 													{% endif %}
 												</tr>
 												<tr>
 													<td class="tooltip" onmouseover="showTooltip('pm', 'FNR')">False negative rate</td>
 													{% if original.performance.false_negative_rate >= mitigated.performance.false_negative_rate %}
-														<td><b>{{ original.performance.false_negative_rate }}</b></td>
-														<td>{{ mitigated.performance.false_negative_rate }}</td>
-													{% else %}
 														<td>{{ original.performance.false_negative_rate }}</td>
 														<td><b>{{ mitigated.performance.false_negative_rate }}</b></td>
+													{% else %}
+														<td><b>{{ original.performance.false_negative_rate }}</b></td>
+														<td>{{ mitigated.performance.false_negative_rate }}</td>
 													{% endif %}
 												</tr>
 												<tr>
@@ -162,21 +162,21 @@
 												<tr>
 													<td class="tooltip" onmouseover="showTooltip('pm', 'FDR')">False discovery rate</td>
 													{% if original.performance.false_discovery_rate >= mitigated.performance.false_discovery_rate %}
-														<td><b>{{ original.performance.false_discovery_rate }}</b></td>
-														<td>{{ mitigated.performance.false_discovery_rate }}</td>
-													{% else %}
 														<td>{{ original.performance.false_discovery_rate }}</td>
 														<td><b>{{ mitigated.performance.false_discovery_rate }}</b></td>
+													{% else %}
+														<td><b>{{ original.performance.false_discovery_rate }}</b></td>
+														<td>{{ mitigated.performance.false_discovery_rate }}</td>
 													{% endif %}
 												</tr>
 												<tr>
 													<td class="tooltip" onmouseover="showTooltip('pm', 'FOR')">False omission rate</td>
 													{% if original.performance.false_omission_rate >= mitigated.performance.false_omission_rate %}
-														<td><b>{{ original.performance.false_omission_rate }}</b></td>
-														<td>{{ mitigated.performance.false_omission_rate }}</td>
-													{% else %}
 														<td>{{ original.performance.false_omission_rate }}</td>
 														<td><b>{{ mitigated.performance.false_omission_rate }}</b></td>
+													{% else %}
+														<td><b>{{ original.performance.false_omission_rate }}</b></td>
+														<td>{{ mitigated.performance.false_omission_rate }}</td>
 													{% endif %}
 												</tr>
 												<tr>
@@ -215,11 +215,11 @@
 														<td>{{ original.classify.error_rate }}</td>
 														<td><b>{{ mitigated.classify.error_rate }}</b></td>
 													{% endif %}
-													<td>0.0</td>
+													<td></td>
 												</tr>
 												<tr>
 													<td class="tooltip" onmouseover="showTooltip('bm', 'Average odds difference')">Average odds difference</td>
-													{% if original.classify.average_odds_difference <= mitigated.classify.average_odds_difference %}
+													{% if (absoriginal.classify.average_odds_difference) <= (mitigated.classify.average_odds_difference) %}
 														<td><b>{{ original.classify.average_odds_difference }}</b></td>
 														<td>{{ mitigated.classify.average_odds_difference }}</td>
 													{% else %}
@@ -241,18 +241,13 @@
 												</tr>
 												<tr>
 													<td class="tooltip" onmouseover="showTooltip('bm', 'Selection rate')">Selection rate</td>
-													{% if original.classify.selection_rate >= mitigated.classify.selection_rate %}
-														<td><b>{{ original.classify.selection_rate }}</b></td>
-														<td>{{ mitigated.classify.selection_rate }}</td>
-													{% else %}
 														<td>{{ original.classify.selection_rate }}</td>
-														<td><b>{{ mitigated.classify.selection_rate }}</b></td>
-													{% endif %}
+														<td>{{ mitigated.classify.selection_rate }}</td>
 													<td></td>
 												</tr>
 												<tr>
 													<td class="tooltip" onmouseover="showTooltip('bm', 'Disparate impact')">Disparate impact</td>
-													{% if original.classify.disparate_impact >= mitigated.classify.disparate_impact %}
+													{% if (1 - absoriginal.classify.disparate_impact) <= (1 - absmitigated.classify.disparate_impact) %}
 														<td><b>{{ original.classify.disparate_impact }}</b></td>
 														<td>{{ mitigated.classify.disparate_impact }}</td>
 													{% else %}
@@ -263,7 +258,7 @@
 												</tr>
 												<tr>
 													<td class="tooltip" onmouseover="showTooltip('bm', 'Statistical parity difference')">Statistical parity difference</td>
-													{% if original.classify.statistical_parity_difference <= mitigated.classify.statistical_parity_difference %}
+													{% if absoriginal.classify.statistical_parity_difference <= absmitigated.classify.statistical_parity_difference %}
 														<td><b>{{ original.classify.statistical_parity_difference }}</b></td>
 														<td>{{ mitigated.classify.statistical_parity_difference }}</td>
 													{% else %}
@@ -274,7 +269,7 @@
 												</tr>
 												<tr>
 													<td class="tooltip" onmouseover="showTooltip('bm', 'Generalized entropy index')">Generalized entropy index</td>
-													{% if original.classify.generalized_entropy_index >= mitigated.classify.generalized_entropy_index %}
+													{% if original.classify.generalized_entropy_index <= mitigated.classify.generalized_entropy_index %}
 														<td><b>{{ original.classify.generalized_entropy_index }}</b></td>
 														<td>{{ mitigated.classify.generalized_entropy_index }}</td>
 													{% else %}
@@ -285,7 +280,7 @@
 												</tr>
 												<tr>
 													<td class="tooltip" onmouseover="showTooltip('bm', 'Theil index')">Theil index</td>
-													{% if original.classify.theil_index >= mitigated.classify.theil_index %}
+													{% if original.classify.theil_index <= mitigated.classify.theil_index %}
 														<td><b>{{ original.classify.theil_index }}</b></td>
 														<td>{{ mitigated.classify.theil_index }}</td>
 													{% else %}
@@ -296,7 +291,7 @@
 												</tr>
 												<tr>
 													<td class="tooltip" onmouseover="showTooltip('bm', 'Equal opportunity difference')">Equal opportunity difference</td>
-													{% if original.classify.equal_opportunity_difference <= mitigated.classify.equal_opportunity_difference %}
+													{% if absoriginal.classify.equal_opportunity_difference <= absmitigated.classify.equal_opportunity_difference %}
 														<td><b>{{ original.classify.equal_opportunity_difference }}</b></td>
 														<td>{{ mitigated.classify.equal_opportunity_difference }}</td>
 													{% else %}
