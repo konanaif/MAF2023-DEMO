@@ -10,10 +10,12 @@ from MAF2023.Metric import DataMetric, ClassificationMetric
 from MAF2023.Algorithms.Preprocessing import Disparate_Impact_Remover, Learning_Fair_Representation, RW
 from MAF2023.Algorithms.Inprocessing import Gerry_Fair_Classifier, Meta_Fair_Classifier, Prejudice_Remover
 from MAF2023.Algorithms.Postprocessing import Calibrated_EqOdds, EqualizedOdds, RejectOption
-from MAF2023.Algorithms.sota import FairBatch, FairFeatureDistillation, FairnessVAE, KernelDensityEstimator, LearningFromFailure
+from MAF2023.Algorithms.sota import FairBatch, FairFeatureDistillation, FairnessVAE, KernelDensityEstimator, \
+    LearningFromFairness
 
 from sklearn import svm
 from sklearn.manifold import TSNE
+from sklearn.preprocessing import StandardScaler
 import numpy as np
 import pandas as pd
 import os
@@ -23,7 +25,6 @@ from torch import nn
 from torch import optim
 
 from sample import AdultDataset, GermanDataset, CompasDataset, PubFigDataset
-
 
 app = FastAPI()
 
@@ -68,13 +69,14 @@ class Metrics:
     def __init__(self):
         self.result = None
 
-
     def get_metrics(self, dataset, tsne):
         print("train model start")
         # 2. Get classification metrics
-        privilege = {key: value[0] for key, value in zip(dataset.protected_attribute_names, dataset.privileged_protected_attributes)}
+        privilege = {key: value[0] for key, value in
+                     zip(dataset.protected_attribute_names, dataset.privileged_protected_attributes)}
         print("Privileged values: ", privilege)
-        unprivilege = {key: value[0] for key, value in zip(dataset.protected_attribute_names, dataset.unprivileged_protected_attributes)}
+        unprivilege = {key: value[0] for key, value in
+                       zip(dataset.protected_attribute_names, dataset.unprivileged_protected_attributes)}
         print("Unprivileged values: ", unprivilege)
 
         print("T-SNE option value:", tsne)
@@ -90,13 +92,13 @@ class Metrics:
             df_priv = df.loc[df[dataset.protected_attribute_names[0]] == priv_val]
             df_unpriv = df.loc[df[dataset.protected_attribute_names[0]] == unpriv_val]
             ds_priv = aifData(df=df_priv, label_name=dataset.label_names[0],
-                favorable_classes=[dataset.favorable_label],
-                protected_attribute_names=dataset.protected_attribute_names,
-                privileged_classes=dataset.privileged_protected_attributes)
+                              favorable_classes=[dataset.favorable_label],
+                              protected_attribute_names=dataset.protected_attribute_names,
+                              privileged_classes=dataset.privileged_protected_attributes)
             ds_unpriv = aifData(df=df_unpriv, label_name=dataset.label_names[0],
-                favorable_classes=[dataset.favorable_label],
-                protected_attribute_names=dataset.protected_attribute_names,
-                privileged_classes=dataset.privileged_protected_attributes)
+                                favorable_classes=[dataset.favorable_label],
+                                protected_attribute_names=dataset.protected_attribute_names,
+                                privileged_classes=dataset.privileged_protected_attributes)
 
             # Sampling
             sample_size = 50
@@ -107,14 +109,20 @@ class Metrics:
             unpriv_sample = np.array(unpriv_sample)
 
             # T-SNE analysis
-            tsne_priv = TSNE(n_components=2, learning_rate='auto', init='random', perplexity=5).fit_transform(priv_sample)
-            tsne_unpriv = TSNE(n_components=2, learning_rate='auto', init='random', perplexity=5).fit_transform(unpriv_sample)
+            tsne_priv = TSNE(n_components=2, learning_rate='auto', init='random', perplexity=5).fit_transform(
+                priv_sample)
+            tsne_unpriv = TSNE(n_components=2, learning_rate='auto', init='random', perplexity=5).fit_transform(
+                unpriv_sample)
+
+            # tsne_priv = TSNE(n_components=2, learning_rate=100, init='random', perplexity=5).fit_transform(priv_sample)
+            # tsne_unpriv = TSNE(n_components=2, learning_rate=100, init='random', perplexity=5).fit_transform(unpriv_sample)
+
             tsne_priv = tsne_priv.tolist()
             tsne_unpriv = tsne_unpriv.tolist()
             print("T-SNE analysis end")
         else:
-            tsne_priv = [[1,1]]
-            tsne_unpriv = [[0,0]]
+            tsne_priv = [[1, 1]]
+            tsne_unpriv = [[0, 0]]
 
         ## train model
         model = svm.SVC(random_state=777)
@@ -125,9 +133,9 @@ class Metrics:
 
         ## metric
         data_metric = DataMetric(dataset, privilege=privilege, unprivilege=unprivilege)
-        cls_metric = ClassificationMetric(dataset=dataset, 
-            privilege=privilege, unprivilege=unprivilege, 
-            prediction_vector=pred, target_label_name=dataset.label_names[0])
+        cls_metric = ClassificationMetric(dataset=dataset,
+                                          privilege=privilege, unprivilege=unprivilege,
+                                          prediction_vector=pred, target_label_name=dataset.label_names[0])
         perfm = cls_metric.performance_measures()
 
         print("train model end")
@@ -175,7 +183,6 @@ class Metrics:
         }
 
         self.result = context
-
 
     def get_state(self):
         return self.result
@@ -287,6 +294,14 @@ class Mitigation:
                 # Split the dataset
                 dataset_train, dataset_test = dataset.split([0.7], shuffle=True)
 
+                # data Scale
+                scaler = StandardScaler()
+                scaled_features_train = scaler.fit_transform(dataset_train.features)
+                dataset_train.features = scaled_features_train
+
+                scaled_features_test = scaler.transform(dataset_test.features)
+                dataset_test.features = scaled_features_test
+
                 mfc = Meta_Fair_Classifier()
                 mfc = mfc.fit(dataset_train)
 
@@ -305,6 +320,14 @@ class Mitigation:
 
                 # Split the dataset
                 dataset_train, dataset_test = dataset.split([0.7], shuffle=True)
+
+                # data Scale
+                scaler = StandardScaler()
+                scaled_features_train = scaler.fit_transform(dataset_train.features)
+                dataset_train.features = scaled_features_train
+
+                scaled_features_test = scaler.transform(dataset_test.features)
+                dataset_test.features = scaled_features_test
 
                 pr = Prejudice_Remover()
                 pr.fit(dataset_train)
@@ -522,7 +545,7 @@ class Mitigation:
                 batch_size = 64
                 learning_rate = 0.01
                 image_shape = (3, 64, 64)
-                lff = LearningFromFailure.LfFmodel(train_data, n_epoch, batch_size, learning_rate, image_shape)
+                lff = LearningFromFairness.LfFmodel(train_data, n_epoch, batch_size, learning_rate, image_shape)
                 lff.train()
 
                 # Prediction
@@ -662,10 +685,10 @@ miti_result = Mitigation()
 # Response: Bias metrics (json)
 @app.post("/original", response_class=RedirectResponse)
 async def original_metrics(
-    request: Request, background_tasks: BackgroundTasks,
-    data_name: Optional[str] = Form(None),
-    tsne: Optional[str] = Form(None)
-    ):
+        request: Request, background_tasks: BackgroundTasks,
+        data_name: Optional[str] = Form(None),
+        tsne: Optional[str] = Form(None)
+):
     global metrics
     global miti_result
     metrics = Metrics()
@@ -687,13 +710,13 @@ async def original_metrics(
             return 'There is no image data on your local. We will download pubfig dataset images from source. Please wait a lot of times. After downloaing the images, you can check images on ./Sample/pubfig directory'
         dataset = pubfig.to_dataset()
         data = dataset['aif_dataset']
-    else: # Custom file: data_name = filename
+    else:  # Custom file: data_name = filename
         data_name = 'custom'
         df = pd.read_csv("custom.csv")
         data = aifData(df=df, label_name='Target', favorable_classes=[1],
-            protected_attribute_names=['Bias'], privileged_classes=[[1]])
-        #os.remove("custom.csv")
-        
+                       protected_attribute_names=['Bias'], privileged_classes=[[1]])
+        # os.remove("custom.csv")
+
     background_tasks.add_task(metrics.get_metrics, data, tsne)
 
     return '/original/{}'.format(data_name)
@@ -777,7 +800,8 @@ async def select_algorithm(request: Request, data_name: str):
 # Request: form data (Algorithm id, Data id)
 # Response: Comparing metrics (json)
 @app.post("/mitigation/{data_name}", response_class=RedirectResponse)
-async def compare_metrics(request: Request, background_tasks: BackgroundTasks, data_name: str, algorithm: int = Form(...)):
+async def compare_metrics(request: Request, background_tasks: BackgroundTasks, data_name: str,
+                          algorithm: int = Form(...)):
     # 1. Load original metrics (with task_id)
 
     # 2. Get mitigated result
@@ -793,17 +817,18 @@ async def compare_metrics(request: Request, background_tasks: BackgroundTasks, d
     else:  # Custom file: data_name = filename
         df = pd.read_csv("custom.csv")
         data = aifData(df=df, label_name='Target', favorable_classes=[1],
-            protected_attribute_names=['Bias'], privileged_classes=[[1]])
+                       protected_attribute_names=['Bias'], privileged_classes=[[1]])
         os.remove("custom.csv")
 
-        #print("Error!!! The selected data is not proper.")
-        #return "Error!!! The selected data is not proper."
+        # print("Error!!! The selected data is not proper.")
+        # return "Error!!! The selected data is not proper."
 
     # 3. Make result json
     background_tasks.add_task(miti_result.get_metrics, dataset=data, method_id=algorithm)
     miti_result.method_id = algorithm
 
     return f"/mitigation/{data_name}/{algorithm}"
+
 
 # Check mitigation status
 @app.get("/check_mitigation_status", response_model=dict)
@@ -813,6 +838,16 @@ async def check_mitigation_status():
     method_id = getattr(miti_result, 'method_id', None)
     return {"metricsReady": bool(miti_result.result), "data_name": data_name, "method_id": method_id}
 
+
+def abs_metrics(value):
+    if isinstance(value, (int, float)):
+        return abs(value)
+    elif isinstance(value, dict):
+        return {k: abs_metrics(v) for k, v in value.items()}
+    elif isinstance(value, list):
+        return [abs_metrics(v) for v in value]
+    else:
+        return value
 
 
 @app.post("/mitigation/{data_name}/{algo_id}")
@@ -830,11 +865,16 @@ async def get_mitigated_result(request: Request, data_name: str, algo_id: int, b
         context = {'request': request, 'error_message': miti_result.result['error']}
         return templates.TemplateResponse('compare_error.html', context=context)
     else:
+        original_absolute = {k: abs_metrics(v) for k, v in metrics.result.items()}
+        mitigated_absolute = {k: abs_metrics(v) for k, v in miti_result.result.items()}
+
         context = {
             'request': request,
             'data_name': data_name,
             'algo_id': algo_id,
             'original': metrics.result,
-            'mitigated': miti_result.result
+            'mitigated': miti_result.result,
+            'absoriginal': original_absolute,
+            'absmitigated': mitigated_absolute
         }
         return templates.TemplateResponse('compare.html', context=context)
