@@ -33,7 +33,7 @@ Sample 폴더를 생성한 후, 해당 폴더에 데이터를 다운로드 합�
 다음 링크를 통해 german.data 파일을 다운로드 합니다.
 - 링크: https://archive.ics.uci.edu/dataset/144/statlog+german+credit+data
 #### C.	Adult census income
-다음 링크를 통해 adult.data 파일을 다운로드 합니다.
+다음 링크를 통해 adult.data, adult.test, adult.names 파일을 다운로드 합니다.
 - 링크: https://archive.ics.uci.edu/dataset/2/adult
 #### D.	Public Figures Face Database
 Public Figures Face Database 옵션을 클릭하는 경우, 다음 링크에서 자동으로 다운로드를 수행합니다. 
