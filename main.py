@@ -10,8 +10,7 @@ from MAF2023.Metric import DataMetric, ClassificationMetric
 from MAF2023.Algorithms.Preprocessing import Disparate_Impact_Remover, Learning_Fair_Representation, RW
 from MAF2023.Algorithms.Inprocessing import Gerry_Fair_Classifier, Meta_Fair_Classifier, Prejudice_Remover
 from MAF2023.Algorithms.Postprocessing import Calibrated_EqOdds, EqualizedOdds, RejectOption
-from MAF2023.Algorithms.sota import FairBatch, FairFeatureDistillation, FairnessVAE, KernelDensityEstimator, \
-    LearningFromFairness
+from MAF2023.Algorithms.sota import FairBatch, FairFeatureDistillation, FairnessVAE, KernelDensityEstimator, LearningFromFairness
 
 from sklearn import svm
 from sklearn.manifold import TSNE
@@ -24,7 +23,7 @@ import random
 from torch import nn
 from torch import optim
 
-from sample import AdultDataset, GermanDataset, CompasDataset, PubFigDataset
+from sample import AdultDataset, GermanDataset, CompasDataset, PubFigDataset, load_preproc_data_compas, load_preproc_data_adult, load_preproc_data_german
 
 app = FastAPI()
 
@@ -93,7 +92,7 @@ class Metrics:
             df_unpriv = df.loc[df[dataset.protected_attribute_names[0]] == unpriv_val]
             ds_priv = aifData(df=df_priv, label_name=dataset.label_names[0],
                               favorable_classes=[dataset.favorable_label],
-                              protected_attribute_names=dataset.protected_attribute_names,
+                               protected_attribute_names=dataset.protected_attribute_names,
                               privileged_classes=dataset.privileged_protected_attributes)
             ds_unpriv = aifData(df=df_unpriv, label_name=dataset.label_names[0],
                                 favorable_classes=[dataset.favorable_label],
@@ -302,7 +301,7 @@ class Mitigation:
                 scaled_features_test = scaler.transform(dataset_test.features)
                 dataset_test.features = scaled_features_test
 
-                mfc = Meta_Fair_Classifier()
+                mfc = Meta_Fair_Classifier(tau=0)
                 mfc = mfc.fit(dataset_train)
 
                 # Train
@@ -561,14 +560,36 @@ class Mitigation:
                 # Split the dataset
                 dataset_train, dataset_test = dataset.split([0.7], shuffle=True)
 
-                # Train
-                model = svm.SVC(random_state=777)
-                model.fit(dataset_train.features, dataset_train.labels.ravel())
-
-                # Prediction
-                pred = model.predict(dataset_test.features)
+                # Placeholder for predicted and transformed datasets
+                dataset_train_pred = dataset_train.copy(deepcopy=True)
                 dataset_test_pred = dataset_test.copy(deepcopy=True)
-                dataset_test_pred.labels = np.array(pred).reshape(len(pred), -1)
+
+                # svm classifier and predictions for training data
+                scale_orig = StandardScaler()
+                X_train = scale_orig.fit_transform(dataset_train.features)
+                y_train = dataset_train.labels.ravel()
+                model = svm.SVC(random_state=777, probability=True)
+                model.fit(X_train, y_train)
+
+                fav_idx = np.where(model.classes_ == dataset_train.favorable_label)[0][0]
+                y_train_pred_prob = model.predict_proba(X_train)[:, fav_idx]
+
+                X_test = scale_orig.transform(dataset_test.features)
+                y_test_pred_prob = model.predict_proba(X_test)[:, fav_idx]
+
+                class_thresh = 0.5
+                dataset_train_pred.scores = y_train_pred_prob.reshape(-1, 1)
+                dataset_test_pred.scores = y_test_pred_prob.reshape(-1, 1)
+
+                y_train_pred = np.zeros_like(dataset_train_pred.labels)
+                y_train_pred[y_train_pred_prob >= class_thresh] = dataset_train_pred.favorable_label
+                y_train_pred[~(y_train_pred_prob >= class_thresh)] = dataset_train_pred.unfavorable_label
+                dataset_train_pred.labels = y_train_pred
+
+                y_test_pred = np.zeros_like(dataset_test_pred.labels)
+                y_test_pred[y_test_pred_prob >= class_thresh] = dataset_test_pred.favorable_label
+                y_test_pred[~(y_test_pred_prob >= class_thresh)] = dataset_test_pred.unfavorable_label
+                dataset_test_pred.labels = y_test_pred
 
                 # Post-processing
                 cpp = Calibrated_EqOdds([unprivilege[0]], [privilege[0]])
@@ -576,7 +597,7 @@ class Mitigation:
 
                 # Re-prediction
                 pred_dataset = cpp.predict(dataset_test_pred)
-                pred = pred_dataset.scores
+                pred = pred_dataset.labels
 
             elif method_id == 14:  # Equalized odds
                 # Make privileged group and unprivileged group
@@ -603,7 +624,7 @@ class Mitigation:
 
                 # Re-prediction
                 pred_dataset = eqodds.predict(dataset_test_pred)
-                pred = pred_dataset.scores
+                pred = pred_dataset.labels
 
             elif method_id == 15:  # Reject option
                 # Make privileged group and unprivileged group
@@ -615,14 +636,36 @@ class Mitigation:
                 # Split the dataset
                 dataset_train, dataset_test = dataset.split([0.7], shuffle=True)
 
-                # Train
-                model = svm.SVC(random_state=777)
-                model.fit(dataset_train.features, dataset_train.labels.ravel())
-
-                # Prediction
-                predict = model.predict(dataset_test.features)
+                # Placeholder for predicted and transformed datasets
+                dataset_train_pred = dataset_train.copy(deepcopy=True)
                 dataset_test_pred = dataset_test.copy(deepcopy=True)
-                dataset_test_pred.labels = np.array(predict).reshape(len(predict), -1)
+
+                # svm classifier and predictions for training data
+                scale_orig = StandardScaler()
+                X_train = scale_orig.fit_transform(dataset_train.features)
+                y_train = dataset_train.labels.ravel()
+                model = svm.SVC(random_state=777, probability=True)
+                model.fit(X_train, y_train)
+
+                fav_idx = np.where(model.classes_ == dataset_train.favorable_label)[0][0]
+                y_train_pred_prob = model.predict_proba(X_train)[:, fav_idx]
+
+                X_test = scale_orig.transform(dataset_test.features)
+                y_test_pred_prob = model.predict_proba(X_test)[:, fav_idx]
+
+                class_thresh = 0.5
+                dataset_train_pred.scores = y_train_pred_prob.reshape(-1, 1)
+                dataset_test_pred.scores = y_test_pred_prob.reshape(-1, 1)
+
+                y_train_pred = np.zeros_like(dataset_train_pred.labels)
+                y_train_pred[y_train_pred_prob >= class_thresh] = dataset_train_pred.favorable_label
+                y_train_pred[~(y_train_pred_prob >= class_thresh)] = dataset_train_pred.unfavorable_label
+                dataset_train_pred.labels = y_train_pred
+
+                y_test_pred = np.zeros_like(dataset_test_pred.labels)
+                y_test_pred[y_test_pred_prob >= class_thresh] = dataset_test_pred.favorable_label
+                y_test_pred[~(y_test_pred_prob >= class_thresh)] = dataset_test_pred.unfavorable_label
+                dataset_test_pred.labels = y_test_pred
 
                 # Post-processing
                 ro = RejectOption([unprivilege[0]], [privilege[0]])
@@ -630,7 +673,7 @@ class Mitigation:
 
                 # Re-prediction
                 pred_dataset = ro.predict(dataset_test_pred)
-                pred = pred_dataset.scores
+                pred = pred_dataset.labels
 
             else:
                 print("ERROR!!")
@@ -698,11 +741,11 @@ async def original_metrics(
 
     # 1. Get data metrics
     if data_name == 'compas':
-        data = CompasDataset()
+        data = load_preproc_data_compas()
     elif data_name == 'german':
-        data = GermanDataset()
+        data = load_preproc_data_german()
     elif data_name == 'adult':
-        data = AdultDataset()
+        data = load_preproc_data_adult()
     elif data_name == 'pubfig':
         pubfig = PubFigDataset()
         if not os.path.isdir('./Sample/pubfig'):
@@ -806,11 +849,11 @@ async def compare_metrics(request: Request, background_tasks: BackgroundTasks, d
 
     # 2. Get mitigated result
     if data_name == 'compas':
-        data = CompasDataset()
+        data = load_preproc_data_compas()
     elif data_name == 'german':
-        data = GermanDataset()
+        data = load_preproc_data_german()
     elif data_name == 'adult':
-        data = AdultDataset()
+        data = load_preproc_data_adult()
     elif data_name == 'pubfig':
         pubfig = PubFigDataset()
         data = pubfig.to_dataset()
